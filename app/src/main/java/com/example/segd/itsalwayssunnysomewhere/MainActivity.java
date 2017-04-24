@@ -1,6 +1,7 @@
 
 package com.example.segd.itsalwayssunnysomewhere;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,13 +13,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.example.segd.itsalwayssunnysomewhere.ForecastAdapter.ForecastAdapterOnClickHandler;
 import com.example.segd.itsalwayssunnysomewhere.R;
 import com.example.segd.itsalwayssunnysomewhere.data.SunshinePreferences;
 import com.example.segd.itsalwayssunnysomewhere.utilities.NetworkUtils;
 import com.example.segd.itsalwayssunnysomewhere.utilities.OpenWeatherJsonUtils;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ForecastAdapterOnClickHandler {
 
 	private RecyclerView mRecyclerView;
 	private ForecastAdapter mForecastAdapter;
@@ -45,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 		mRecyclerView.setLayoutManager(layoutManager);
 
 		/*
-	     * Use this setting to improve performance if you know that changes in content do not
+		 * Use this setting to improve performance if you know that changes in content do not
          * change the child layout size in the RecyclerView
          */
 		mRecyclerView.setHasFixedSize(true);
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
          * The ForecastAdapter is responsible for linking our weather data with the Views that
          * will end up displaying our weather data.
          */
-		mForecastAdapter = new ForecastAdapter();
+		mForecastAdapter = new ForecastAdapter(this);
 
 		/* Setting the adapter attaches it to the RecyclerView in our layout. */
 		mRecyclerView.setAdapter(mForecastAdapter);
@@ -71,6 +74,19 @@ public class MainActivity extends AppCompatActivity {
 
 		String location = SunshinePreferences.getPreferredWeatherLocation(this);
 		new FetchWeatherTask().execute(location);
+	}
+
+	/**
+	 * This method is overridden by our MainActivity class in order to handle RecyclerView item
+	 * clicks.
+	 *
+	 * @param weatherForDay The weather for the day that was clicked
+	 */
+	@Override
+	public void onClick(String weatherForDay) {
+		Context context = this;
+		Toast.makeText(context, weatherForDay, Toast.LENGTH_SHORT)
+			.show();
 	}
 
 	private void showWeatherDataView() {
