@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 		Bundle bundleForLoader = null;
 
 		/*
-         * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
+	     * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
          * created and (if the activity/fragment is currently started) starts the loader. Otherwise
          * the last created loader is re-used.
          */
@@ -286,9 +286,15 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 			getSupportLoaderManager().restartLoader(FORECAST_LOADER_ID, null, this);
 			return true;
 		}
-//Launch the map when the map menu item is clicked
+		//Launch the map when the map menu item is clicked
 		if (id == R.id.action_map) {
 			openLocationInMap();
+			return true;
+		}
+		//Launch SettingsActivity when the Settings option is clicked
+		if (id == R.id.action_settings) {
+			Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+			startActivity(startSettingsActivity);
 			return true;
 		}
 
