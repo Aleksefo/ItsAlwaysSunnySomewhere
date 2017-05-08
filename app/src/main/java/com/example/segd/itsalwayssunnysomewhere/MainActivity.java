@@ -3,6 +3,7 @@ package com.example.segd.itsalwayssunnysomewhere;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -28,7 +30,7 @@ import com.example.segd.itsalwayssunnysomewhere.utilities.OpenWeatherJsonUtils;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements ForecastAdapterOnClickHandler,
-	LoaderCallbacks<String[]> {
+	LoaderCallbacks<String[]>, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 	private ProgressBar mLoadingIndicator;
 
 	private static final int FORECAST_LOADER_ID = 0;
+	private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -96,11 +99,19 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 		Bundle bundleForLoader = null;
 
 		/*
-	     * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
+		 * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
          * created and (if the activity/fragment is currently started) starts the loader. Otherwise
          * the last created loader is re-used.
          */
 		getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
+
+		/*
+		 * Register MainActivity as an OnPreferenceChangedListener to receive a callback when a
+         * SharedPreference has changed. Please note that we must unregister MainActivity as an
+         * OnSharedPreferenceChanged listener in onDestroy to avoid any memory leaks.
+         */
+		PreferenceManager.getDefaultSharedPreferences(this)
+			.registerOnSharedPreferenceChangeListener(this);
 	}
 
 	/**
@@ -200,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 	@Override
 	public void onLoaderReset(Loader<String[]> loader) {
 			        /*
-         * We aren't using this method in our example application, but we are required to Override
+	     * We aren't using this method in our example application, but we are required to Override
          * it to implement the LoaderCallbacks<String> interface
          */
 	}
@@ -224,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 	 */
 	private void openLocationInMap() {
 
-		String addressString = "1600 Ampitheatre Parkway, CA";
+		String addressString = SunshinePreferences.getPreferredWeatherLocation(this);
 		Uri geoLocation = Uri.parse("geo:0,0?q=" + addressString);
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -267,13 +278,47 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 		mErrorMessageDisplay.setVisibility(View.VISIBLE);
 	}
 
+	/**
+	 * OnStart is called when the Activity is coming into view. This happens when the Activity is
+	 * first created, but also happens when the Activity is returned to from another Activity. We
+	 * are going to use the fact that onStart is called when the user returns to this Activity to
+	 * check if the location setting or the preferred units setting has changed. If it has changed,
+	 * we are going to perform a new query.
+	 */
+	@Override
+	protected void onStart() {
+		super.onStart();
+		/*
+         * If the preferences for location or units have changed since the user was last in
+         * MainActivity, perform another query and set the flag to false.
+         * This isn't the ideal solution because there really isn't a need to perform another
+         * GET request just to change the units, but this is the simplest solution that gets the
+         * job done for now. Later in this course, we are going to show you more elegant ways to
+         * handle converting the units from celsius to fahrenheit and back without hitting the
+         * network again by keeping a copy of the data in a manageable format.
+         */
+		if (PREFERENCES_HAVE_BEEN_UPDATED) {
+			Log.d(TAG, "onStart: preferences were updated");
+			getSupportLoaderManager().restartLoader(FORECAST_LOADER_ID, null, this);
+			PREFERENCES_HAVE_BEEN_UPDATED = false;
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		/* Unregister MainActivity as an OnPreferenceChangedListener to avoid any memory leaks. */
+		PreferenceManager.getDefaultSharedPreferences(this)
+			.unregisterOnSharedPreferenceChangeListener(this);
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		        /* Use AppCompatActivity's method getMenuInflater to get a handle on the menu inflater */
+		/* Use AppCompatActivity's method getMenuInflater to get a handle on the menu inflater */
 		MenuInflater inflater = getMenuInflater();
-		        /* Use the inflater's inflate method to inflate our menu layout to this menu */
+		/* Use the inflater's inflate method to inflate our menu layout to this menu */
 		inflater.inflate(R.menu.forecast, menu);
-		        /* Return true so that the menu is displayed in the Toolbar */
+		/* Return true so that the menu is displayed in the Toolbar */
 		return true;
 	}
 
@@ -299,5 +344,21 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	// Override onSharedPreferenceChanged to set the preferences flag to true
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+		/*
+         * Set this flag to true so that when control returns to MainActivity, it can refresh the
+         * data.
+         *
+         * This isn't the ideal solution because there really isn't a need to perform another
+         * GET request just to change the units, but this is the simplest solution that gets the
+         * job done for now. Later in this course, we are going to show you more elegant ways to
+         * handle converting the units from celsius to fahrenheit and back without hitting the
+         * network again by keeping a copy of the data in a manageable format.
+         */
+		PREFERENCES_HAVE_BEEN_UPDATED = true;
 	}
 }
