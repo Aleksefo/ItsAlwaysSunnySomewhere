@@ -46,16 +46,22 @@ public class SunshinePreferences {
 		"1600 Amphitheatre Parkway, Mountain View, CA 94043";
 
 	/**
-	 * Helper method to handle setting location details in Preferences (City Name, Latitude,
-	 * Longitude)
+	 * Helper method to handle setting location details in Preferences (city name, latitude,
+	 * longitude)
+	 * <p>
+	 * When the location details are updated, the database should to be cleared.
 	 *
-	 * @param c Context used to get the SharedPreferences
-	 * @param cityName A human-readable city name, e.g "Mountain View"
-	 * @param lat The latitude of the city
-	 * @param lon The longitude of the city
+	 * @param context  Context used to get the SharedPreferences
+	 * @param lat      the latitude of the city
+	 * @param lon      the longitude of the city
 	 */
-	static public void setLocationDetails(Context c, String cityName, double lat, double lon) {
-		/** This will be implemented in a future lesson **/
+	public static void setLocationDetails(Context context, double lat, double lon) {
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+		SharedPreferences.Editor editor = sp.edit();
+
+		editor.putLong(PREF_COORD_LAT, Double.doubleToRawLongBits(lat));
+		editor.putLong(PREF_COORD_LONG, Double.doubleToRawLongBits(lon));
+		editor.apply();
 	}
 
 	/**
