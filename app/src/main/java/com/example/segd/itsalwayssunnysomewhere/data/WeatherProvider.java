@@ -103,7 +103,7 @@ public class WeatherProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 	    /*
-         * As noted in the comment above, onCreate is run on the main thread, so performing any
+	     * As noted in the comment above, onCreate is run on the main thread, so performing any
          * lengthy operations will cause lag in your app. Since WeatherDbHelper's constructor is
          * very lightweight, we are safe to perform that initialization here.
          */
@@ -289,7 +289,42 @@ public class WeatherProvider extends ContentProvider {
 	 */
 	@Override
 	public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
-		throw new RuntimeException("Student, you need to implement the delete method!");
+		/* Users of the delete method will expect the number of rows deleted to be returned. */
+		int numRowsDeleted;
+
+		/*
+         * If we pass null as the selection to SQLiteDatabase#delete, our entire table will be
+         * deleted. However, if we do pass null and delete all of the rows in the table, we won't
+         * know how many rows were deleted. According to the documentation for SQLiteDatabase,
+         * passing "1" for the selection will delete all rows and return the number of rows
+         * deleted, which is what the caller of this method expects.
+         */
+		if (null == selection) {
+			selection = "1";
+		}
+
+		switch (sUriMatcher.match(uri)) {
+
+			//Only implement the functionality, given the proper URI, to delete ALL rows in the weather table
+			case CODE_WEATHER:
+				numRowsDeleted = mOpenHelper.getWritableDatabase().delete(
+					WeatherContract.WeatherEntry.TABLE_NAME,
+					selection,
+					selectionArgs);
+
+				break;
+
+			default:
+				throw new UnsupportedOperationException("Unknown uri: " + uri);
+		}
+
+		/* If we actually deleted any rows, notify that a change has occurred to this URI */
+		if (numRowsDeleted != 0) {
+			getContext().getContentResolver().notifyChange(uri, null);
+		}
+
+		//Return the number of rows deleted
+		return numRowsDeleted;
 	}
 
 	/**
