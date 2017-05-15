@@ -28,7 +28,7 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
 	 * use-case, we wanted to watch out for it and warn you what could happen if you mistakenly
 	 * version your databases.
 	 */
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 
 	//constructor that accepts a context and call through to the superclass constructor
 	public WeatherDbHelper(Context context) {
