@@ -29,6 +29,7 @@ import com.example.segd.itsalwayssunnysomewhere.ForecastAdapter.ForecastAdapterO
 import com.example.segd.itsalwayssunnysomewhere.R;
 import com.example.segd.itsalwayssunnysomewhere.data.SunshinePreferences;
 import com.example.segd.itsalwayssunnysomewhere.data.WeatherContract;
+import com.example.segd.itsalwayssunnysomewhere.sync.SunshineSyncUtils;
 import com.example.segd.itsalwayssunnysomewhere.utilities.FakeDataUtils;
 import com.example.segd.itsalwayssunnysomewhere.utilities.NetworkUtils;
 import com.example.segd.itsalwayssunnysomewhere.utilities.OpenWeatherJsonUtils;
@@ -51,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements
 		WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
 	};
 
-	//  COMPLETED (17) Create constant int values representing each column name's position above
     /*
      * We store the indices of the values in the array of Strings above to more quickly be able to
      * access the data from our query. If the order of the Strings above changes, these indices
@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements
 	public static final int INDEX_WEATHER_MIN_TEMP = 2;
 	public static final int INDEX_WEATHER_CONDITION_ID = 3;
 
-//  COMPLETED (37) Remove the error TextView
 
 	/*
 	 * This ID will be used to identify the Loader responsible for loading our weather forecast. In
@@ -79,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements
 
 	private ProgressBar mLoadingIndicator;
 
-//  COMPLETED (35) Remove the preference change flag
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements
 		setContentView(R.layout.activity_forecast);
 		getSupportActionBar().setElevation(0f);
 
-		FakeDataUtils.insertFakeData(this);
 
         /*
          * Using findViewById, we get a reference to our RecyclerView from xml. This allows us to
@@ -95,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements
          */
 		mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_forecast);
 
-//      COMPLETED (36) Remove the findViewById call for the error TextView
 
         /*
          * The ProgressBar that will indicate to the user that we are loading data. It will be
@@ -132,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements
          */
 		mRecyclerView.setHasFixedSize(true);
 
-//      COMPLETED (4) Pass in this again as the ForecastAdapter now requires a Context
         /*
          * The ForecastAdapter is responsible for linking our weather data with the Views that
          * will end up displaying our weather data.
@@ -148,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements
         /* Setting the adapter attaches it to the RecyclerView in our layout. */
 		mRecyclerView.setAdapter(mForecastAdapter);
 
-//      COMPLETED (18) Call the showLoading method
 		showLoading();
 
 
@@ -161,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements
          */
 		getSupportLoaderManager().initLoader(ID_FORECAST_LOADER, null, this);
 
-//      COMPLETED (19) Remove the statement that registers Mainactivity as a preference change listener
+		SunshineSyncUtils.startImmediateSync(this);
 	}
 
 	/**
@@ -190,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements
 		}
 	}
 
-//  COMPLETED (21) Refactor onCreateLoader to return a Loader<Cursor>, not Loader<String[]>
 
 	/**
 	 * Called by the {@link android.support.v4.app.LoaderManagerImpl} when a new Loader needs to be
@@ -204,13 +197,9 @@ public class MainActivity extends AppCompatActivity implements
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 
-//      COMPLETED (23) Remove the onStartLoading method declaration
-//      COMPLETED (24) Remove the loadInBackground method declaration
-//      COMPLETED (25) Remove the deliverResult method declaration
 
 		switch (loaderId) {
 
-//          COMPLETED (22) If the loader requested is our forecast loader, return the appropriate CursorLoader
 			case ID_FORECAST_LOADER:
                 /* URI for all rows of weather data in our weather table */
 				Uri forecastQueryUri = WeatherContract.WeatherEntry.CONTENT_URI;
@@ -235,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements
 		}
 	}
 
-//  COMPLETED (26) Change onLoadFinished parameter to a Loader<Cursor> instead of a Loader<String[]>
 
 	/**
 	 * Called when a Loader has finished loading its data.
@@ -251,18 +239,13 @@ public class MainActivity extends AppCompatActivity implements
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-//      COMPLETED (27) Remove the previous body of onLoadFinished
 
-//      COMPLETED (28) Call mForecastAdapter's swapCursor method and pass in the new Cursor
 		mForecastAdapter.swapCursor(data);
-//      COMPLETED (29) If mPosition equals RecyclerView.NO_POSITION, set it to 0
 		if (mPosition == RecyclerView.NO_POSITION) {
 			mPosition = 0;
 		}
-//      COMPLETED (30) Smooth scroll the RecyclerView to mPosition
 		mRecyclerView.smoothScrollToPosition(mPosition);
 
-//      COMPLETED (31) If the Cursor's size is not equal to 0, call showWeatherDataView
 		if (data.getCount() != 0) {
 			showWeatherDataView();
 		}
@@ -276,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements
 	 */
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-//      COMPLETED (32) Call mForecastAdapter's swapCursor method and pass in null
         /*
          * Since this Loader's data is now invalid, we need to clear the Adapter that is
          * displaying the data.
@@ -300,7 +282,6 @@ public class MainActivity extends AppCompatActivity implements
 	/**
 	 * This method will make the View for the weather data visible and hide the error message and
 	 * loading indicator.
-	 * <p>
 	 * Since it is okay to redundantly set the visibility of a View, we don't need to check whether
 	 * each view is currently visible or invisible.
 	 */
@@ -311,14 +292,9 @@ public class MainActivity extends AppCompatActivity implements
 		mRecyclerView.setVisibility(View.VISIBLE);
 	}
 
-//  COMPLETED (33) Delete showErrorMessage
-
-//  COMPLETED (34) Create a method called showLoading that shows the loading indicator and hides the data
-
 	/**
 	 * This method will make the loading indicator visible and hide the weather View and error
 	 * message.
-	 * <p>
 	 * Since it is okay to redundantly set the visibility of a View, we don't need to check whether
 	 * each view is currently visible or invisible.
 	 */

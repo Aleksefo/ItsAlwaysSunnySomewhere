@@ -30,10 +30,15 @@
         android:value=".MainActivity" />
     </activity>
     <activity android:name=".SettingsActivity"></activity>
-            <provider
-                android:name=".data.WeatherProvider"
-                android:authorities="@string/content_authority"
-                android:exported="false"/>
+
+    <provider
+      android:authorities="@string/content_authority"
+      android:exported="false"
+      android:name=".data.WeatherProvider" />
+    <!--This is required for immediate syncs -->
+    <service
+      android:exported="false"
+      android:name=".sync.SunshineSyncIntentService" />
   </application>
 
 </manifest>
