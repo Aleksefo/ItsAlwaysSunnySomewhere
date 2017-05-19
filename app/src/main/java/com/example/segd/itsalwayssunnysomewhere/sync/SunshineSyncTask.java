@@ -3,8 +3,11 @@ package com.example.segd.itsalwayssunnysomewhere.sync;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.text.format.DateUtils;
+import com.example.segd.itsalwayssunnysomewhere.data.SunshinePreferences;
 import com.example.segd.itsalwayssunnysomewhere.data.WeatherContract;
 import com.example.segd.itsalwayssunnysomewhere.utilities.NetworkUtils;
+import com.example.segd.itsalwayssunnysomewhere.utilities.NotificationUtils;
 import com.example.segd.itsalwayssunnysomewhere.utilities.OpenWeatherJsonUtils;
 import java.net.URL;
 
@@ -20,9 +23,8 @@ public class SunshineSyncTask {
 	 */
 	synchronized public static void syncWeather(Context context) {
 
-
 		try {
-            /*
+	        /*
              * The getUrl method will return the URL that we need to get the forecast JSON for the
              * weather. It will decide whether to create a URL based off of the latitude and
              * longitude or off of a simple location as a String.
@@ -56,6 +58,35 @@ public class SunshineSyncTask {
 				sunshineContentResolver.bulkInsert(
 					WeatherContract.WeatherEntry.CONTENT_URI,
 					weatherValues);
+			}
+
+
+			/*
+                 * Finally, after we insert data into the ContentProvider, determine whether or not
+                 * we should notify the user that the weather has been refreshed.
+                 */
+			boolean notificationsEnabled = SunshinePreferences.areNotificationsEnabled(context);
+
+			/*
+                 * If the last notification was shown was more than 1 day ago, we want to send
+                 * another notification to the user that the weather has been updated. Remember,
+                 * it's important that you shouldn't spam your users with notifications.
+                 */
+			long timeSinceLastNotification = SunshinePreferences
+				.getEllapsedTimeSinceLastNotification(context);
+
+			boolean oneDayPassedSinceLastNotification = false;
+
+			if (timeSinceLastNotification >= DateUtils.DAY_IN_MILLIS) {
+				oneDayPassedSinceLastNotification = true;
+			}
+
+				 /*
+                 * We only want to show the notification if the user wants them shown and we
+                 * haven't shown a notification in the past day.
+                 */
+			if (notificationsEnabled && oneDayPassedSinceLastNotification) {
+				NotificationUtils.notifyUserOfNewWeather(context);
 			}
 
             /* If the code reaches this point, we have successfully performed our sync */
