@@ -1,64 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:padding="8dp"
-  android:orientation="vertical">
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  - This layout displays the complete details of a given day's weather, including the date, a    -
+  - weather icon and description, the high and low temperature, the humidity, pressure, and the  -
+  - wind speed and direction.                                                                    -
+  -                                                                                              -
+  - In order to use Android's data binding capabilities, (to avoid having to type findViewById   -
+  - over and over again) we wrap this layout in a <layout></layout> tag.                         -
+  -                                                                                              -
+  - Note that this is the PORTRAIT version of the layout.                                        -
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-  <TextView
-    android:id="@+id/date"
-    style="@style/TextAppearance.AppCompat.Large"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    tools:text="Saturday, September 24" />
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <!-- Text that describes weather condition -->
-  <TextView
-    android:id="@+id/weather_description"
-    style="@style/TextAppearance.AppCompat.Large"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    tools:text="Rainy" />
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-  <!-- High temperature for today -->
-  <TextView
-    android:id="@+id/high_temperature"
-    style="@style/TextAppearance.AppCompat.Large"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    tools:text="19\u00b0" />
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      - To efficiently re-use complete layouts, you can use the <include/> tags to embed     -
+      - another complete layout inside the current layout. In Sunshine, this allows us to    -
+      - conveniently create layouts for both the portrait and landscape layouts for the      -
+      - DetailActivity. If we hadn't have used <include/> tags, we would have duplicated     -
+      - layout code all over the place, and any changes we wanted to make, we'd have to make -
+      - twice.                                                                               -
+      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <include
+      android:id="@+id/primary_info"
+      layout="@layout/primary_weather_info"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"/>
 
-  <!-- Low temperature for today -->
-  <TextView
-    android:id="@+id/low_temperature"
-    style="@style/TextAppearance.AppCompat.Large"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    tools:text="10\u00b0" />
+    <include
+      android:id="@+id/extra_details"
+      layout="@layout/extra_weather_details"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"/>
 
-  <!-- Humidity  -->
-  <TextView
-    android:id="@+id/humidity"
-    style="@style/TextAppearance.AppCompat.Large"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    tools:text="38%" />
-
-  <!-- Pressure  -->
-  <TextView
-    android:id="@+id/pressure"
-    style="@style/TextAppearance.AppCompat.Large"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    tools:text="995 hPa" />
-
-  <!-- Wind  -->
-  <TextView
-    android:id="@+id/wind"
-    style="@style/TextAppearance.AppCompat.Large"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    tools:text="4km/h NW" />
-
-</LinearLayout>
+  </LinearLayout>
+</layout>
