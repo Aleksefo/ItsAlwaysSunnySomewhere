@@ -15,7 +15,7 @@
   android:layout_height="wrap_content"
   android:paddingTop="@dimen/today_forecast_list_item_vertical_padding"
   android:paddingBottom="@dimen/today_forecast_list_item_vertical_padding"
-  android:background="@color/colorPrimary">
+  android:background="@drawable/today_touch_selector">
 
   <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    - This Guideline divides the screen into a left half and a right half and is used to        -

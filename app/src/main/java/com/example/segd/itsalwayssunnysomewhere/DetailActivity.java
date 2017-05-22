@@ -27,7 +27,7 @@ public class DetailActivity extends AppCompatActivity implements
 	 * In this Activity, you can share the selected day's forecast. No social sharing is complete
 	 * without using a hashtag. #BeTogetherNotTheSame
 	 */
-	private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
+	private static final String FORECAST_SHARE_HASHTAG = " #Its Always Sunny SomewhereApp";
 
 	/*
 	 * The columns of data that we are interested in displaying within our DetailActivity's
