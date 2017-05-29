@@ -1,5 +1,5 @@
 # Sunshine
-Yet another weather app
+Yet another weather app. Can change location, choose Metric\Imperial and set up notifications.
 
 # Video Preview
 
